@@ -5,6 +5,7 @@ import ctypes
 import matplotlib.pyplot as plt
 import numpy as np
 import enum
+import argparse
 
 
 class TELEMETRY_DATA_TYPE(enum.Enum):
@@ -70,16 +71,25 @@ class get_telemetry(object):
             packed_data = binascii.unhexlify(packet[2])
             telemetry_packet = TELEMETRY_PACKET(packed_data)
             self.x_value_list.append(telemetry_packet.timestamp)
-            self.y_value_list.append(telemetry_packet.data.i)
+            
+            if telemetry_packet.source.telemetry_data_type == TELEMETRY_DATA_TYPE.TELEMETRY_TYPE_INT.value:
+                self.y_value_list.append(telemetry_packet.data.i)
+            if telemetry_packet.source.telemetry_data_type == TELEMETRY_DATA_TYPE.TELEMETRY_TYPE_FLOAT.value:
+                self.y_value_list.append(telemetry_packet.data.f)
+            else:
+                print('Telemetry type not found') 
+
         telemetry_log.close()
 
-
 def main():
-    file_path = sys.argv[1]
-    telemetry = get_telemetry(file_path)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filepath', help="filepath")
+    args = parser.parse_args()
+
+    telemetry = get_telemetry(args.filepath)
+    
     plotter = telemetry_plotter(telemetry.x_value_list, telemetry.y_value_list)
     plotter.plot()
-
 
 if __name__ == '__main__':
     main()
