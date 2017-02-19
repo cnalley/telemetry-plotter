@@ -30,23 +30,24 @@ class TELEMETRY_PACKET(ctypes.Structure):
         ctypes.memmove(ctypes.addressof(self), bytes, fit)
 
 class telemetry_plotter(object):
-    def __init__(self, x_values, y_values):
+    def __init__(self, x_values, y_values, plot_name, series_name):
         self.x_values = x_values
         self.y_values = y_values
+        self.plot_name = plot_name
+        self.series_name = series_name
     
     def plot(self):
-        label_for_plot = "test"
         plt.plot(np.asarray(self.x_values),           # X Axis
                         np.asarray(self.y_values),    # Y Axis
-                        'o', label=label_for_plot,    # Circle marker and legend
+                        'o', label=self.series_name,    # Circle marker and legend
                         picker=5)                     # 5 points tolerance
     
         plt.ylabel('Value', picker=True)
         plt.xlabel('Time',  picker=True)
         plt.gcf().autofmt_xdate()           # Beautify time x axis
         plt.grid(True)
-        plt.title('Telemetry Plotter')
-        plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0)
+        plt.title(self.plot_name)
+        plt.legend(bbox_to_anchor=(1, -0.2),loc=5, borderaxespad=0)
         plt.show()
 
 
@@ -88,7 +89,7 @@ def main():
 
     telemetry = get_telemetry(args.filepath)
     
-    plotter = telemetry_plotter(telemetry.x_value_list, telemetry.y_value_list)
+    plotter = telemetry_plotter(telemetry.x_value_list, telemetry.y_value_list, 'Telemetry Plotter', 'Series Data')
     plotter.plot()
 
 if __name__ == '__main__':
